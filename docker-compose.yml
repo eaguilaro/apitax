@@ -1,0 +1,80 @@
+services:
+  mongodb:
+    # Keep old local volumes on their original major version unless migration is intentional.
+    image: ${MONGO_IMAGE:-mongo:6.0}
+    container_name: apitax-mongodb
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: apitax
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/10-apitax.js:ro
+    networks:
+      - apitax-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: apitax-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3001
+      MONGODB_URI: mongodb://mongodb:27017/apitax
+      # Este secreto solo se necesita durante el alta inicial; después se puede quitar del .env.
+      AUTH_SETUP_TOKEN: ${AUTH_SETUP_TOKEN:-}
+      JWT_SECRET: ${JWT_SECRET:?Ejecuta el instalador para generar .env}
+      AUTH_TOTP_ENCRYPTION_KEY: ${AUTH_TOTP_ENCRYPTION_KEY:?Ejecuta el instalador para generar .env}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:8080}
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - recibos_data:/app/uploads
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - apitax-network
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: /api
+    container_name: apitax-frontend
+    restart: unless-stopped
+    ports:
+      - "${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-8080}:80"
+    depends_on:
+      - backend
+    networks:
+      - apitax-network
+
+  mongo-express:
+    image: mongo-express:1.0.0
+    container_name: apitax-mongo-express
+    profiles: ["tools"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - apitax-network
+
+volumes:
+  mongodb_data:
+  recibos_data:
+
+networks:
+  apitax-network:
+    driver: bridge

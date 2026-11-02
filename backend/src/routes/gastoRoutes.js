@@ -8,6 +8,7 @@ const upload = require('../middleware/upload');
 // Las rutas conectan el endpoint HTTP con su controlador; Multer procesa el recibo antes de crear el gasto.
 router.get('/balance/semanal', gastoController.obtenerBalanceSemanal);
 router.post('/mantenimiento/inicializar', mantenimientoController.inicializarDatos);
+router.post('/mantenimiento/limpiar', mantenimientoController.limpiarDatos);
 router.get('/ingresos', ingresoController.obtenerTodos);
 router.post('/ingresos', ingresoController.crear);
 

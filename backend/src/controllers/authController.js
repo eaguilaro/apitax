@@ -91,7 +91,7 @@ const startSetup = async (req, res, next) => {
     if (!securityConfigurationIsReady() || !process.env.AUTH_SETUP_TOKEN) {
       return res.status(503).json({
         success: false,
-        message: 'Configura AUTH_SETUP_TOKEN, JWT_SECRET y AUTH_TOTP_ENCRYPTION_KEY en backend/.env'
+        message: 'Configura AUTH_SETUP_TOKEN, JWT_SECRET y AUTH_TOTP_ENCRYPTION_KEY en .env (o backend/.env en modo manual)'
       });
     }
 

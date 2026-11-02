@@ -1,0 +1,42 @@
+# Dependencies and generated builds
+**/node_modules/
+**/dist/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+/secrets/
+**/secrets/
+/.secrets/
+**/.secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+*.secret
+
+# Internal study and deployment documentation (kept locally, not published)
+/ARQUITECTURA.md
+/DIAGRAMA_ARQUITECTURA.md
+/GUIA_*.md
+/INDICE.md
+/INICIO.md
+/INSTALACION_RAPIDA.md
+/LISTA_ARCHIVOS.md
+/PLAN_DE_TRABAJO.md
+/PROYECTO_COMPLETADO.md
+/TESTING_API.md
+
+# Locally uploaded receipts; keep only the empty directory placeholder
+backend/uploads/*
+!backend/uploads/.gitkeep
+/backups/
+
+# Logs and editor settings
+*.log
+.vscode/
+.DS_Store
